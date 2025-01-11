@@ -1,0 +1,72 @@
+import math
+from PIL import Image, ImageDraw, ImageFont
+
+# Function to generate Fibonacci numbers
+def fibonacci_sequence(n):
+    fib = [0, 1]
+    for i in range(2, n):
+        fib.append(fib[-1] + fib[-2])
+    return fib
+
+# Function to draw the Fibonacci spiral with colored digits
+def generate_fibonacci_spiral_image_colored(n_points, image_size, spacing, digits="01"):
+    # Generate the Fibonacci sequence
+    fib = fibonacci_sequence(n_points)
+    digit_str = "".join(str(num) for num in fib)  # Convert Fibonacci numbers into a repeating digit string
+    digit_len = len(digit_str)
+
+    # Define a color map for digits
+    color_map = {
+        "0": "red",
+        "1": "blue",
+        "2": "green",
+        "3": "purple",
+        "4": "orange",
+        "5": "cyan",
+        "6": "magenta",
+        "7": "brown",
+        "8": "pink",
+        "9": "yellow"
+    }
+
+    # Create the base image (white background)
+    img = Image.new("RGB", image_size, "white")
+    draw = ImageDraw.Draw(img)
+
+    # Load a font for drawing digits
+    try:
+        font = ImageFont.truetype("arial.ttf", 14)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Center coordinates of the image
+    center_x, center_y = image_size[0] // 2, image_size[1] // 2
+
+    # Spiral drawing parameters
+    angle_increment = math.radians(137.5)  # Golden angle in radians
+    for i in range(n_points):
+        # Radius increases proportionally to the square root of the index
+        radius = math.sqrt(i) * spacing
+
+        # Compute the position in polar coordinates (converted to Cartesian)
+        angle = i * angle_increment
+        x = center_x + int(radius * math.cos(angle))
+        y = center_y + int(radius * math.sin(angle))
+
+        # Draw the corresponding digit
+        digit = digit_str[i % digit_len]
+        color = color_map.get(digit, "black")  # Default to black if digit isn't in color_map
+        draw.text((x, y), digit, font=font, fill=color, anchor="mm")  # Place colored digit at the location
+
+    return img
+
+# Configuration
+n_points = 500  # Number of Fibonacci points to plot
+image_size = (1000, 1000)  # Image dimensions (width x height)
+spacing = 10  # Spacing between points in the spiral
+digits = "0123456789"  # Use all digits
+
+# Generate the Fibonacci spiral image with colors
+spiral_image_colored = generate_fibonacci_spiral_image_colored(n_points, image_size, spacing, digits)
+spiral_image_colored.save("fibonacci_spiral_flower_colored.png")
+spiral_image_colored.show()
